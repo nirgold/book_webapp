@@ -164,6 +164,21 @@
   
   
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAyVsJreh6PQZTdZqxp1xEBG4WMH6WMxko",
+    authDomain: "book-webapp-dcc82.firebaseapp.com",
+    projectId: "book-webapp-dcc82",
+    storageBucket: "book-webapp-dcc82.firebasestorage.app",
+    messagingSenderId: "716789693322",
+    appId: "1:716789693322:web:58826d66cfc39439f02673"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+</script>
 <script>
 
 let selectedNoteId = null;
@@ -424,68 +439,39 @@ function searchNotes() {
 }
 
 function saveBoards() {
-  localStorage.setItem('stickyBoards', JSON.stringify(boards));
+  db.collection("notesApp").doc("userData").set({
+    boards: JSON.stringify(boards)
+  }).catch((error) => {
+    console.error("שגיאה בשמירת הלוחות:", error);
+  });
 }
 
 function loadBoards() {
-  const saved = localStorage.getItem('stickyBoards');
-  if (saved) {
-    try {
-      boards = JSON.parse(saved);
-    } catch (e) {
-      console.error("שגיאה בטעינת הלוחות", e);
+  db.collection("notesApp").doc("userData").get().then((doc) => {
+    if (doc.exists) {
+      try {
+        boards = JSON.parse(doc.data().boards);
+      } catch (e) {
+        console.error("שגיאה בפריסת הנתונים", e);
+        boards = [];
+      }
+    } else {
       boards = [];
     }
-  }
-  if (!Array.isArray(boards) || boards.length === 0) addBoard();
-  renderTabs();
-  renderBoard();
+    if (!Array.isArray(boards) || boards.length === 0) addBoard();
+    renderTabs();
+    renderBoard();
+  }).catch((error) => {
+    console.error("שגיאה בטעינת הלוחות:", error);
+    boards = [];
+    addBoard();
+    renderTabs();
+    renderBoard();
+  });
 }
 
 
 loadBoards();
-</script>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyAyVsJreh6PQZTdZqxp1xEBG4WMH6WMxko",
-    authDomain: "book-webapp-dcc82.firebaseapp.com",
-    projectId: "book-webapp-dcc82",
-    storageBucket: "book-webapp-dcc82.firebasestorage.app",
-    messagingSenderId: "716789693322",
-    appId: "1:716789693322:web:58826d66cfc39439f02673"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Example: Save data
-  async function saveNote() {
-    await addDoc(collection(db, "notes"), {
-      title: "My first note",
-      content: "This is saved in Firebase!"
-    });
-  }
-
-  // Example: Load data
-  async function loadNotes() {
-    const querySnapshot = await getDocs(collection(db, "notes"));
-    querySnapshot.forEach((doc) => {
-      console.log(doc.id, " => ", doc.data());
-    });
-  }
-
-  // Call functions here if needed
-  saveNote();
-  loadNotes();
 </script>
 </body>
 </html>
