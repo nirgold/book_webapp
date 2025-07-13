@@ -445,5 +445,47 @@ function loadBoards() {
 
 loadBoards();
 </script>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAyVsJreh6PQZTdZqxp1xEBG4WMH6WMxko",
+    authDomain: "book-webapp-dcc82.firebaseapp.com",
+    projectId: "book-webapp-dcc82",
+    storageBucket: "book-webapp-dcc82.firebasestorage.app",
+    messagingSenderId: "716789693322",
+    appId: "1:716789693322:web:58826d66cfc39439f02673"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Example: Save data
+  async function saveNote() {
+    await addDoc(collection(db, "notes"), {
+      title: "My first note",
+      content: "This is saved in Firebase!"
+    });
+  }
+
+  // Example: Load data
+  async function loadNotes() {
+    const querySnapshot = await getDocs(collection(db, "notes"));
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+    });
+  }
+
+  // Call functions here if needed
+  saveNote();
+  loadNotes();
+</script>
 </body>
 </html>
